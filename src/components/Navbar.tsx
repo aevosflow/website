@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Menu, ChevronDown } from 'lucide-react';
 
 const MENU_ITEMS = [
-  { title: 'Services',     target: 'solutions',    sections: [{ title: 'AI Agents', subs: ['Conversational Assistants', 'Process Orchestration', 'Policy-Driven Actions'] }, { title: 'AI Automation', subs: ['Workflow Integrations', 'Event-Based Triggers', 'Robotic Task Execution'] }, { title: 'Data Intelligence', subs: ['Pipeline Engineering', 'Predictive Analytics', 'Knowledge Graphs'] }] },
+  { title: 'Services',     target: 'solutions',    sections: [{ title: 'ML & AI Agents', subs: ['Sales Forecasting', 'Customer Churn Prediction', 'Recommendation Systems', 'Custom ML Models', 'AI Chatbots', 'AI Voice Agents'] }, { title: 'AI Automations', subs: ['CRM Automation', 'Workflow Automation', 'Multi-Agent Systems', 'RAG-Powered Chatbots', 'Email Follow-up'] }, { title: 'AI Data Science', subs: ['Data Pipeline Development', 'Dashboard & BI Reporting', 'Predictive Analytics', 'Model Building', 'Big Data Analytics'] }] },
   { title: 'Process',      target: 'process',      sections: [{ title: 'Project Lifecycle', subs: ['Discovery', 'Design', 'Deploy', 'Optimize', 'Scale'] }] },
   { title: 'Case Studies', target: 'case-studies', sections: [{ title: 'Featured Work', subs: ['Retail Automation', 'Finance Productivity', 'Data Modernization'] }] },
   { title: 'Insights',     target: 'insights',     sections: [{ title: 'Thought Leadership', subs: ['Articles', 'Reports', 'Industry Trends'] }] },
