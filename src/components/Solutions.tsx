@@ -130,13 +130,14 @@ export default function Solutions() {
                 }`}
               >
                 <div>
-                  <div className="mb-6 inline-flex p-3 bg-brand-low rounded-lg text-brand-cyan group-hover:scale-110 transition-transform duration-300">
-                    <IconComponent className="w-8 h-8" />
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="inline-flex p-3 bg-brand-low rounded-lg text-brand-cyan group-hover:scale-110 transition-transform duration-300 shrink-0">
+                      <IconComponent className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-display font-bold text-2xl text-brand-dark">
+                      {sol.title}
+                    </h3>
                   </div>
-                  
-                  <h3 className="font-display font-bold text-2xl text-brand-dark mb-3">
-                    {sol.title}
-                  </h3>
                   
                   <p className="font-sans text-brand-gray text-sm md:text-base leading-relaxed mb-6">
                     {sol.description}
