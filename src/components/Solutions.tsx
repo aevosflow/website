@@ -105,7 +105,7 @@ export default function Solutions() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="font-display font-extrabold text-4xl md:text-5xl text-brand-dark mb-4">
-              What We Build
+              Our Services
             </h2>
             <p className="font-sans text-brand-gray text-base md:text-lg max-w-2xl">
               We design and build bespoke intelligence systems tailored to enterprise workflows, bypassing generic wrappers for true edge advantage.
