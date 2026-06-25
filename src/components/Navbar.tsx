@@ -1,6 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, Globe, Send, Check, X, Menu } from 'lucide-react';
+import { Mail, Phone, Globe, Send, Check, X, Menu, ChevronDown } from 'lucide-react';
+
+const MENU_ITEMS = [
+  {
+    title: 'Services',
+    target: 'solutions',
+    sections: [
+      {
+        title: 'AI Agents',
+        subs: ['Conversational Assistants', 'Process Orchestration', 'Policy-Driven Actions']
+      },
+      {
+        title: 'AI Automation',
+        subs: ['Workflow Integrations', 'Event-Based Triggers', 'Robotic Task Execution']
+      },
+      {
+        title: 'Data Intelligence',
+        subs: ['Pipeline Engineering', 'Predictive Analytics', 'Knowledge Graphs']
+      }
+    ]
+  },
+  {
+    title: 'Process',
+    target: 'process',
+    sections: [
+      {
+        title: 'Project Lifecycle',
+        subs: ['Discovery', 'Design', 'Deploy', 'Optimize', 'Scale']
+      }
+    ]
+  },
+  {
+    title: 'Case Studies',
+    target: 'case-studies',
+    sections: [
+      {
+        title: 'Featured Work',
+        subs: ['Retail Automation', 'Finance Productivity', 'Data Modernization']
+      }
+    ]
+  },
+  {
+    title: 'Insights',
+    target: 'insights',
+    sections: [
+      {
+        title: 'Thought Leadership',
+        subs: ['Articles', 'Reports', 'Industry Trends']
+      }
+    ]
+  }
+];
 
 interface NavbarProps {
   onContactClick: () => void;
@@ -18,7 +69,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLElement>, targetId: string) => {
     e.preventDefault();
     const element = document.getElementById(targetId);
     if (element) {
@@ -33,6 +84,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
         behavior: 'smooth'
       });
     }
+
     setMobileMenuOpen(false);
   };
 
@@ -56,15 +108,41 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             </a>
             
             <div className="hidden md:flex items-center gap-8">
-              {['solutions', 'process', 'case-studies', 'insights'].map((item) => (
-                <a
-                  key={item}
-                  href={`#${item}`}
-                  onClick={(e) => handleNavClick(e, item)}
-                  className="font-display text-sm font-medium text-brand-gray hover:text-brand-dark transition-colors duration-200 capitalize"
-                >
-                  {item.replace('-', ' ')}
-                </a>
+              {MENU_ITEMS.map((item) => (
+                <div key={item.title} className="relative group">
+                  <a
+                    href={`#${item.target}`}
+                    onClick={(e) => handleNavClick(e, item.target)}
+                    className="inline-flex items-center gap-2 font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200"
+                  >
+                    {item.title}
+                    <ChevronDown className="w-3.5 h-3.5 text-brand-gray transition-transform duration-200 group-hover:-rotate-180" />
+                  </a>
+
+                  <div className="absolute left-0 top-full z-20 opacity-0 invisible min-w-[340px] rounded-[32px] border border-slate-200/80 bg-white/95 p-5 shadow-2xl backdrop-blur-xl transition-all duration-200 group-hover:opacity-100 group-hover:visible">
+                    <div className="space-y-4">
+                      {item.sections.map((section, sectionIndex) => (
+                        <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
+                          <p className="font-display text-sm font-semibold text-brand-dark mb-2">
+                            {section.title}
+                          </p>
+                          <div className="space-y-2">
+                            {section.subs.map((sub) => (
+                              <a
+                                key={sub}
+                                href={`#${item.target}`}
+                                onClick={(e) => handleNavClick(e, item.target)}
+                                className="block w-full text-left font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors"
+                              >
+                                {sub}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -99,16 +177,36 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             transition={{ duration: 0.2 }}
             className="fixed top-16 inset-x-0 bg-brand-lowest/95 backdrop-blur-lg border-b border-outline-variant z-40 py-6 px-6 flex flex-col gap-4 shadow-lg md:hidden"
           >
-            {['solutions', 'process', 'case-studies', 'insights'].map((item) => (
-              <a
-                key={item}
-                href={`#${item}`}
-                onClick={(e) => handleNavClick(e, item)}
-                className="font-display text-base font-semibold text-brand-gray hover:text-brand-dark transition-colors py-2 capitalize border-b border-outline-variant/30"
-              >
-                {item.replace('-', ' ')}
-              </a>
-            ))}
+            <div className="space-y-6">
+              {MENU_ITEMS.map((item) => (
+                <div key={item.title} className="space-y-3">
+                  <span className="font-display text-sm font-semibold text-brand-dark uppercase tracking-wide">
+                    {item.title}
+                  </span>
+                  <div className="space-y-4 rounded-[28px] border border-slate-200/80 bg-white p-4">
+                    {item.sections.map((section, sectionIndex) => (
+                      <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
+                        <p className="font-display text-sm font-semibold text-brand-dark mb-2">
+                          {section.title}
+                        </p>
+                        <div className="space-y-2 pl-2">
+                          {section.subs.map((sub) => (
+                            <a
+                              key={sub}
+                              href={`#${item.target}`}
+                              onClick={(e) => handleNavClick(e, item.target)}
+                              className="block font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors"
+                            >
+                              {sub}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

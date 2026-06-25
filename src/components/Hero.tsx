@@ -32,21 +32,6 @@ export default function Hero({ onBookCall }: HeroProps) {
 
       {/* Hero content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 flex-grow flex flex-col justify-center items-center text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="inline-flex items-center gap-2 px-3 py-1 bg-brand-low/80 backdrop-blur-md border border-brand-cyan/20 rounded-full mb-6"
-        >
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-cyan opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-cyan"></span>
-          </span>
-          <span className="font-display text-xs font-semibold uppercase tracking-wider text-brand-dark/80">
-            AevosFlow Core 2.0 Released
-          </span>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

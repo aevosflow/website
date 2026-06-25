@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, ArrowRight, Share2, Bookmark, Heart, Calendar, User, Clock } from 'lucide-react';
 import { InsightArticle } from '../types';
@@ -59,6 +59,26 @@ We deploy streaming vectors using lightweight message brokers that process event
 export default function Insights() {
   const [selectedArticle, setSelectedArticle] = useState<string | null>(null);
   const [liked, setLiked] = useState<Record<string, boolean>>({});
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
+
+  // Open article if URL hash specifies one (e.g. #article=maturity)
+  useEffect(() => {
+    const hash = window.location.hash || '';
+    if (hash.startsWith('#article=')) {
+      const id = hash.replace('#article=', '');
+      const exists = ARTICLES.find(a => a.id === id);
+      if (exists) setSelectedArticle(id);
+    }
+  }, []);
+
+  // Keep URL hash in sync with opened article
+  useEffect(() => {
+    if (selectedArticle) {
+      window.history.replaceState(null, '', `#article=${selectedArticle}`);
+    } else {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [selectedArticle]);
 
   const activeArticle = ARTICLES.find(a => a.id === selectedArticle);
 
@@ -201,12 +221,42 @@ export default function Insights() {
                   </button>
 
                   <button
-                    onClick={() => navigator.clipboard.writeText(window.location.href)}
+                    onClick={async () => {
+                      if (!activeArticle) return;
+                      const url = new URL(window.location.href);
+                      url.hash = `article=${activeArticle.id}`;
+
+                      try {
+                        if ((navigator as any).share) {
+                          await (navigator as any).share({
+                            title: activeArticle.title,
+                            text: activeArticle.summary,
+                            url: url.toString()
+                          });
+                          setShareStatus('shared');
+                        } else {
+                          await navigator.clipboard.writeText(url.toString());
+                          setShareStatus('copied');
+                        }
+                      } catch (err) {
+                        try {
+                          await navigator.clipboard.writeText(url.toString());
+                          setShareStatus('copied');
+                        } catch (err2) {
+                          setShareStatus('failed');
+                        }
+                      }
+
+                      setTimeout(() => setShareStatus(null), 2200);
+                    }}
                     className="flex items-center gap-1.5 text-xs text-brand-gray hover:text-brand-dark font-display font-bold transition-colors cursor-pointer"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>
                   </button>
+                  {shareStatus === 'copied' && <span className="text-xs text-brand-gray">Link copied</span>}
+                  {shareStatus === 'shared' && <span className="text-xs text-brand-gray">Shared</span>}
+                  {shareStatus === 'failed' && <span className="text-xs text-rose-500">Failed to share</span>}
                 </div>
 
                 <button

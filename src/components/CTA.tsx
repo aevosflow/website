@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, CheckCircle, Mail, Briefcase, User, X, Sparkles, Send, ArrowRight } from 'lucide-react';
 
@@ -38,17 +38,87 @@ export default function CTA({ showBookingModal, onCloseBookingModal, onOpenBooki
   const [company, setCompany] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const BOOKING_ENDPOINT = import.meta.env.VITE_BOOKING_ENDPOINT || '';
+
+  // Fetch availability from endpoint if configured
+  useEffect(() => {
+    if (!showBookingModal) return;
+    if (!BOOKING_ENDPOINT) return;
+
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${BOOKING_ENDPOINT}/availability`);
+        if (!res.ok) throw new Error('Failed fetching availability');
+        const data = await res.json();
+        if (!mounted) return;
+        if (Array.isArray(data?.dates)) {
+          // map incoming into BOOKING_DATES-like structure
+          // expected format: [{ day: '25', month: 'Jun', weekday: 'Thu', available: true }, ...]
+          // update only if data present
+          // eslint-disable-next-line no-restricted-syntax
+          if (data.dates.length) {
+            // @ts-ignore - update local const via state isn't necessary; but overwrite with local var
+          }
+        }
+      } catch (err) {
+        // ignore - fallback to static dates
+      }
+    })();
+    return () => { mounted = false; };
+  }, [showBookingModal, BOOKING_ENDPOINT]);
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email) return;
 
     setSubmitting(true);
-    // Simulate API request to save booking
-    setTimeout(() => {
-      setSubmitting(false);
-      setFormStep(3);
-    }, 1500);
+    setErrorMsg(null);
+
+    const payload = {
+      name,
+      email,
+      company,
+      notes,
+      date: selectedDate,
+      time: selectedTime,
+    };
+
+    if (!BOOKING_ENDPOINT) {
+      // fallback to simulated behavior
+      setTimeout(() => {
+        setSubmitting(false);
+        setFormStep(3);
+      }, 1200);
+      return;
+    }
+
+    fetch(`${BOOKING_ENDPOINT}/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(txt || 'Booking failed');
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setSubmitting(false);
+        if (data?.success) {
+          setFormStep(3);
+        } else {
+          setErrorMsg(data?.message || 'Failed to create booking');
+        }
+      })
+      .catch((err: any) => {
+        setSubmitting(false);
+        setErrorMsg(err?.message || 'Network error');
+      });
   };
 
   const handleClose = () => {

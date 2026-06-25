@@ -8,7 +8,6 @@ const PROCESS_STEPS = [
     title: 'Discover',
     summary: 'We audit your existing data and operational gaps.',
     icon: Eye,
-    timeframe: 'Weeks 1-2',
     details: [
       'Comprehensive inventory of current data silos and pipeline models.',
       'Analysis of friction vectors inside user support and logistical workflows.',
@@ -21,7 +20,6 @@ const PROCESS_STEPS = [
     title: 'Design',
     summary: 'Architecting a custom solution for your specific scale.',
     icon: Sparkles,
-    timeframe: 'Weeks 3-4',
     details: [
       'Drafting sequence topology maps for custom multi-agent routing.',
       'Designing vector store database architectures and integration parameters.',
@@ -34,7 +32,6 @@ const PROCESS_STEPS = [
     title: 'Deploy',
     summary: 'Rapid integration into your current tech stack.',
     icon: Cpu,
-    timeframe: 'Weeks 5-8',
     details: [
       'Staging APIs and sandboxed Express server runtimes securely.',
       'Populating vector embeddings databases with enterprise contextual knowledge.',
@@ -47,7 +44,6 @@ const PROCESS_STEPS = [
     title: 'Optimize',
     summary: 'Continuous tuning based on real-world performance.',
     icon: LineChart,
-    timeframe: 'Ongoing',
     details: [
       'Analyzing real user telemetry patterns to discover policy failure paths.',
       'Fine-tuning system prompts and temperature defaults for maximum reliability.',
@@ -60,7 +56,6 @@ const PROCESS_STEPS = [
     title: 'Scale',
     summary: 'Expanding intelligence across all business units.',
     icon: ShieldCheck,
-    timeframe: 'Enterprise',
     details: [
       'Cloning automation flow structures across adjacent departments.',
       'Integrating secondary data systems for unified dashboard analytics.',
@@ -125,10 +120,6 @@ export default function Process() {
                   <h4 className={`font-display text-base mt-4 transition-colors ${isActive ? 'font-bold text-brand-dark' : 'font-medium text-brand-gray group-hover:text-brand-dark'}`}>
                     {step.title}
                   </h4>
-                  
-                  <span className="font-mono text-[10px] text-brand-gray mt-1 font-semibold uppercase tracking-wider">
-                    {step.timeframe}
-                  </span>
                 </button>
               );
             })}
@@ -174,10 +165,6 @@ export default function Process() {
                 <h3 className="font-display font-extrabold text-3xl text-brand-dark mb-2">
                   {currentStepData.title}
                 </h3>
-                
-                <span className="font-mono text-xs text-brand-cyan font-bold tracking-wider uppercase bg-brand-cyan/10 px-2.5 py-1 rounded-md">
-                  {currentStepData.timeframe}
-                </span>
                 
                 <p className="font-sans text-brand-gray mt-6 leading-relaxed text-base md:text-lg">
                   {currentStepData.summary}
