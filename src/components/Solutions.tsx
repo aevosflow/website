@@ -126,9 +126,6 @@ function ServiceModal({
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <h2 className="font-display font-extrabold text-2xl text-brand-dark">{category.title}</h2>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold font-display" style={{ background: `${category.accent}18`, color: category.accent }}>
-                    {category.services.length} services
-                  </span>
                 </div>
                 <p className="font-sans text-sm text-brand-gray max-w-lg">{category.description}</p>
               </div>
@@ -279,12 +276,8 @@ export default function Solutions({ onBookingOpen }: { onBookingOpen?: (service?
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-brand-gray text-xs font-bold font-display mb-4">
-            <Sparkles className="w-3 h-3" />
-            What We Build
-          </div>
           <h2 className="font-display font-extrabold text-4xl md:text-5xl text-brand-dark mb-4">
-            Three Practice Areas.<br />One Outcome.
+            Our Services
           </h2>
           <p className="font-sans text-brand-gray text-base md:text-lg max-w-2xl">
             Your business runs smarter, faster and without unnecessary headcount — pick a category to explore every service we offer.
