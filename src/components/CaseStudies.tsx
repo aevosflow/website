@@ -87,7 +87,7 @@ export default function CaseStudies() {
           className="mb-16"
         >
           <h2 className="font-display font-extrabold text-4xl md:text-5xl text-brand-dark mb-4">
-            Real Systems. Real Impact.
+            Case Studies
           </h2>
           <p className="font-sans text-brand-gray text-base md:text-lg max-w-xl">
             See the exact blueprints, ROI parameters, and deployment metrics from our actual production implementations.
