@@ -158,13 +158,14 @@ export default function Process() {
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
               <div className="md:col-span-5">
-                <div className="text-brand-cyan mb-4 inline-flex p-3 bg-brand-lowest border border-outline-variant/40 rounded-lg shadow-2xs">
-                  <StepIcon className="w-6 h-6" />
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="text-brand-cyan inline-flex p-3 bg-brand-lowest border border-outline-variant/40 rounded-lg shadow-2xs shrink-0">
+                    <StepIcon className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-display font-extrabold text-3xl text-brand-dark">
+                    {currentStepData.title}
+                  </h3>
                 </div>
-                
-                <h3 className="font-display font-extrabold text-3xl text-brand-dark mb-2">
-                  {currentStepData.title}
-                </h3>
                 
                 <p className="font-sans text-brand-gray mt-6 leading-relaxed text-base md:text-lg">
                   {currentStepData.summary}
