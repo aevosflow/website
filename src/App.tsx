@@ -29,7 +29,7 @@ export default function App() {
       <TrustLogos />
 
       {/* Solutions Cards ("What We Build") */}
-      <Solutions />
+      <Solutions onBookingOpen={handleOpenBooking} />
 
       {/* Outcomes Grid */}
       <Outcomes />
