@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Calendar, Clock, CheckCircle, Mail, Briefcase, User, X, Sparkles, Send, ArrowRight } from 'lucide-react';
 
@@ -40,35 +40,7 @@ export default function CTA({ showBookingModal, onCloseBookingModal, onOpenBooki
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const BOOKING_ENDPOINT = import.meta.env.VITE_BOOKING_ENDPOINT || '';
 
-  // Fetch availability from endpoint if configured
-  useEffect(() => {
-    if (!showBookingModal) return;
-    if (!BOOKING_ENDPOINT) return;
-
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch(`${BOOKING_ENDPOINT}/availability`);
-        if (!res.ok) throw new Error('Failed fetching availability');
-        const data = await res.json();
-        if (!mounted) return;
-        if (Array.isArray(data?.dates)) {
-          // map incoming into BOOKING_DATES-like structure
-          // expected format: [{ day: '25', month: 'Jun', weekday: 'Thu', available: true }, ...]
-          // update only if data present
-          // eslint-disable-next-line no-restricted-syntax
-          if (data.dates.length) {
-            // @ts-ignore - update local const via state isn't necessary; but overwrite with local var
-          }
-        }
-      } catch (err) {
-        // ignore - fallback to static dates
-      }
-    })();
-    return () => { mounted = false; };
-  }, [showBookingModal, BOOKING_ENDPOINT]);
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,16 +58,7 @@ export default function CTA({ showBookingModal, onCloseBookingModal, onOpenBooki
       time: selectedTime,
     };
 
-    if (!BOOKING_ENDPOINT) {
-      // fallback to simulated behavior
-      setTimeout(() => {
-        setSubmitting(false);
-        setFormStep(3);
-      }, 1200);
-      return;
-    }
-
-    fetch(`${BOOKING_ENDPOINT}/book`, {
+    fetch('/api/book', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -117,7 +80,7 @@ export default function CTA({ showBookingModal, onCloseBookingModal, onOpenBooki
       })
       .catch((err: any) => {
         setSubmitting(false);
-        setErrorMsg(err?.message || 'Network error');
+        setErrorMsg(err?.message || 'Network error. Please try again.');
       });
   };
 
