@@ -1,12 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Menu, ChevronDown } from 'lucide-react';
+import { X, Menu, ChevronDown, BrainCircuit, Zap, BarChart2, ArrowRight } from 'lucide-react';
+
+const SERVICES_DROPDOWN = [
+  {
+    id: 'ml',
+    title: 'ML & AI Agents',
+    accent: '#06B6D4',
+    icon: BrainCircuit,
+    subs: [
+      'Sales Forecasting', 'Demand Forecasting', 'Customer Churn Prediction',
+      'Customer Segmentation', 'Recommendation Systems', 'Risk Analysis',
+      'Predictive Analytics', 'Custom ML Models', 'AI Chatbots',
+      'AI Voice Agents', 'Customer Support Agents', 'Lead Generation Agents',
+      'Sales Outreach Agents',
+    ],
+  },
+  {
+    id: 'automation',
+    title: 'AI Automations',
+    accent: '#8B5CF6',
+    icon: Zap,
+    subs: [
+      'Email Follow-up Automation', 'CRM Automation',
+      'Workflow Automation (n8n / Make / Zapier)', 'Multi-Agent Systems',
+      'RAG-Powered Chatbots', 'LLM Fine-tuning & Prompting',
+      'AI Content & Copy Generation',
+    ],
+  },
+  {
+    id: 'data',
+    title: 'AI Data Science',
+    accent: '#10B981',
+    icon: BarChart2,
+    subs: [
+      'Data Pipeline Development', 'Dashboard & BI Reporting',
+      'Data Cleaning & Preparation', 'Big Data Analytics',
+      'Exploratory Data Analysis', 'Model Building', 'Model Evaluation',
+    ],
+  },
+];
 
 const MENU_ITEMS = [
-  { title: 'Services',     target: 'solutions',    sections: [{ title: 'ML & AI Agents', subs: ['Sales Forecasting', 'Customer Churn Prediction', 'Recommendation Systems', 'Custom ML Models', 'AI Chatbots', 'AI Voice Agents'] }, { title: 'AI Automations', subs: ['CRM Automation', 'Workflow Automation', 'Multi-Agent Systems', 'RAG-Powered Chatbots', 'Email Follow-up'] }, { title: 'AI Data Science', subs: ['Data Pipeline Development', 'Dashboard & BI Reporting', 'Predictive Analytics', 'Model Building', 'Big Data Analytics'] }] },
-  { title: 'Process',      target: 'process',      sections: [{ title: 'Project Lifecycle', subs: ['Discovery', 'Design', 'Deploy', 'Optimize', 'Scale'] }] },
-  { title: 'Case Studies', target: 'case-studies', sections: [{ title: 'Featured Work', subs: ['Retail Automation', 'Finance Productivity', 'Data Modernization'] }] },
-  { title: 'Insights',     target: 'insights',     sections: [{ title: 'Thought Leadership', subs: ['Articles', 'Reports', 'Industry Trends'] }] },
+  { title: 'Process',      target: 'process' },
+  { title: 'Case Studies', target: 'case-studies' },
+  { title: 'Insights',     target: 'insights' },
 ];
 
 const MOBILE_NAV = [
@@ -23,6 +61,7 @@ interface NavbarProps {
 export default function Navbar({ onContactClick }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -45,6 +84,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       window.scrollTo({ top: elementRect - bodyRect - offset, behavior: 'smooth' });
     }
     setMobileMenuOpen(false);
+    setServicesOpen(false);
   };
 
   return (
@@ -60,7 +100,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-12">
+          <div className="flex items-center gap-10">
             <a href="#" className="font-display font-extrabold text-2xl tracking-tight text-brand-dark flex items-center gap-2">
               <span className="w-3 h-3 bg-brand-cyan rounded-full animate-pulse" />
               AevosFlow
@@ -68,34 +108,97 @@ export default function Navbar({ onContactClick }: NavbarProps) {
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
-              {MENU_ITEMS.map((item) => (
-                <div key={item.title} className="relative group">
-                  <a
-                    href={`#${item.target}`}
-                    onClick={(e) => handleNavClick(e, item.target)}
-                    className="inline-flex items-center gap-2 font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200"
-                  >
-                    {item.title}
-                    <ChevronDown className="w-3.5 h-3.5 text-brand-gray transition-transform duration-200 group-hover:-rotate-180" />
-                  </a>
-                  <div className="absolute left-0 top-full z-20 opacity-0 invisible min-w-[340px] rounded-[32px] border border-slate-200/80 bg-white/95 p-5 shadow-2xl backdrop-blur-xl transition-all duration-200 group-hover:opacity-100 group-hover:visible">
-                    <div className="space-y-4">
-                      {item.sections.map((section, i) => (
-                        <div key={section.title} className={i > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
-                          <p className="font-display text-sm font-semibold text-brand-dark mb-2">{section.title}</p>
-                          <div className="space-y-2">
-                            {section.subs.map((sub) => (
-                              <a key={sub} href={`#${item.target}`} onClick={(e) => handleNavClick(e, item.target)}
-                                className="block w-full text-left font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors">
-                                {sub}
-                              </a>
-                            ))}
-                          </div>
+
+              {/* Services mega-dropdown */}
+              <div
+                className="relative group"
+                onMouseEnter={() => setServicesOpen(true)}
+                onMouseLeave={() => setServicesOpen(false)}
+              >
+                <button
+                  onClick={(e) => handleNavClick(e as any, 'solutions')}
+                  className="inline-flex items-center gap-1.5 font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200 cursor-pointer"
+                >
+                  Services
+                  <ChevronDown className={`w-3.5 h-3.5 text-brand-gray transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {servicesOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                      transition={{ duration: 0.16 }}
+                      className="absolute left-0 top-full pt-3 z-20 w-[720px]"
+                    >
+                      <div className="rounded-2xl border border-slate-200/80 bg-white/98 shadow-2xl backdrop-blur-xl overflow-hidden">
+                        {/* Header bar */}
+                        <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+                          <p className="text-xs font-bold font-display text-brand-gray uppercase tracking-widest">Our Services</p>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+
+                        <div className="grid grid-cols-3 divide-x divide-slate-100">
+                          {SERVICES_DROPDOWN.map((cat) => {
+                            const CatIcon = cat.icon;
+                            return (
+                              <div key={cat.id} className="p-4">
+                                {/* Category header */}
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="p-1.5 rounded-lg" style={{ background: `${cat.accent}18` }}>
+                                    <CatIcon className="w-3.5 h-3.5" style={{ color: cat.accent }} />
+                                  </div>
+                                  <button
+                                    onClick={(e) => handleNavClick(e as any, 'solutions')}
+                                    className="font-display text-xs font-bold text-brand-dark hover:text-brand-cyan transition-colors cursor-pointer"
+                                  >
+                                    {cat.title}
+                                  </button>
+                                </div>
+
+                                {/* Service links */}
+                                <div className="space-y-1">
+                                  {cat.subs.map((sub) => (
+                                    <button
+                                      key={sub}
+                                      onClick={(e) => handleNavClick(e as any, 'solutions')}
+                                      className="block w-full text-left px-2 py-1 rounded-lg font-sans text-xs text-brand-gray hover:text-brand-dark hover:bg-slate-50 transition-all cursor-pointer"
+                                    >
+                                      {sub}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Footer CTA */}
+                        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                          <p className="font-sans text-xs text-brand-gray">27 services across 3 practice areas</p>
+                          <button
+                            onClick={(e) => handleNavClick(e as any, 'solutions')}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold font-display text-brand-cyan hover:text-brand-dark transition-colors cursor-pointer"
+                          >
+                            View all services <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Other nav items */}
+              {MENU_ITEMS.map((item) => (
+                <a
+                  key={item.title}
+                  href={`#${item.target}`}
+                  onClick={(e) => handleNavClick(e, item.target)}
+                  className="font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200"
+                >
+                  {item.title}
+                </a>
               ))}
             </div>
           </div>
