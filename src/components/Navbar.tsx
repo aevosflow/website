@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, Globe, Send, Check, X, Menu, ChevronDown } from 'lucide-react';
+import { X, Menu, ChevronDown } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
@@ -60,32 +60,36 @@ interface NavbarProps {
 export default function Navbar({ onContactClick }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileMenuOpen]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLElement>, targetId: string) => {
     e.preventDefault();
     const element = document.getElementById(targetId);
     if (element) {
-      const offset = 80; // height of navbar
+      const offset = 80;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      const offsetPosition = elementRect - bodyRect - offset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
-
     setMobileMenuOpen(false);
+    setOpenAccordion(null);
+  };
+
+  const toggleAccordion = (title: string) => {
+    setOpenAccordion(prev => prev === title ? null : title);
   };
 
   return (
@@ -106,7 +110,8 @@ export default function Navbar({ onContactClick }: NavbarProps) {
               <span className="w-3 h-3 bg-brand-cyan rounded-full animate-pulse" />
               AevosFlow
             </a>
-            
+
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
               {MENU_ITEMS.map((item) => (
                 <div key={item.title} className="relative group">
@@ -118,14 +123,11 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                     {item.title}
                     <ChevronDown className="w-3.5 h-3.5 text-brand-gray transition-transform duration-200 group-hover:-rotate-180" />
                   </a>
-
                   <div className="absolute left-0 top-full z-20 opacity-0 invisible min-w-[340px] rounded-[32px] border border-slate-200/80 bg-white/95 p-5 shadow-2xl backdrop-blur-xl transition-all duration-200 group-hover:opacity-100 group-hover:visible">
                     <div className="space-y-4">
                       {item.sections.map((section, sectionIndex) => (
                         <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
-                          <p className="font-display text-sm font-semibold text-brand-dark mb-2">
-                            {section.title}
-                          </p>
+                          <p className="font-display text-sm font-semibold text-brand-dark mb-2">{section.title}</p>
                           <div className="space-y-2">
                             {section.subs.map((sub) => (
                               <a
@@ -155,67 +157,91 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             >
               Contact
             </button>
-            
+
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-brand-gray hover:text-brand-dark transition-colors"
+              onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setOpenAccordion(null); }}
+              className="md:hidden p-2 text-brand-gray hover:text-brand-dark transition-colors cursor-pointer"
               aria-label="Toggle menu"
             >
-              <Menu className="w-6 h-6" />
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 inset-x-0 bg-brand-lowest/95 backdrop-blur-lg border-b border-outline-variant z-40 py-6 px-6 flex flex-col gap-4 shadow-lg md:hidden"
+            className="fixed top-[57px] inset-x-0 bottom-0 z-40 bg-white overflow-y-auto md:hidden flex flex-col"
           >
-            <div className="space-y-6">
+            <div className="flex-1 px-4 py-4 space-y-1">
               {MENU_ITEMS.map((item) => (
-                <div key={item.title} className="space-y-3">
-                  <span className="font-display text-sm font-semibold text-brand-dark uppercase tracking-wide">
-                    {item.title}
-                  </span>
-                  <div className="space-y-4 rounded-[28px] border border-slate-200/80 bg-white p-4">
-                    {item.sections.map((section, sectionIndex) => (
-                      <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
-                        <p className="font-display text-sm font-semibold text-brand-dark mb-2">
-                          {section.title}
-                        </p>
-                        <div className="space-y-2 pl-2">
-                          {section.subs.map((sub) => (
-                            <a
-                              key={sub}
-                              href={`#${item.target}`}
-                              onClick={(e) => handleNavClick(e, item.target)}
-                              className="block font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors"
-                            >
-                              {sub}
-                            </a>
+                <div key={item.title} className="border-b border-slate-100 last:border-0">
+                  {/* Accordion header */}
+                  <button
+                    onClick={() => toggleAccordion(item.title)}
+                    className="w-full flex items-center justify-between py-4 text-left cursor-pointer"
+                  >
+                    <span className="font-display font-semibold text-base text-brand-dark">{item.title}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-brand-gray transition-transform duration-200 ${
+                        openAccordion === item.title ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {/* Accordion body */}
+                  <AnimatePresence initial={false}>
+                    {openAccordion === item.title && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pb-4 space-y-4">
+                          {item.sections.map((section, sectionIndex) => (
+                            <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-100' : ''}>
+                              <p className="font-display text-xs font-bold text-brand-gray uppercase tracking-wider mb-2 px-1">
+                                {section.title}
+                              </p>
+                              <div className="space-y-1">
+                                {section.subs.map((sub) => (
+                                  <a
+                                    key={sub}
+                                    href={`#${item.target}`}
+                                    onClick={(e) => handleNavClick(e, item.target)}
+                                    className="block px-3 py-2 rounded-lg font-sans text-sm text-brand-dark hover:bg-slate-50 transition-colors"
+                                  >
+                                    {sub}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
                           ))}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onContactClick();
-              }}
-              className="w-full bg-brand-dark text-white py-3 rounded-md font-display font-semibold hover:bg-brand-cyan hover:text-brand-dark transition-colors text-center"
-            >
-              Contact
-            </button>
+
+            {/* Bottom CTA */}
+            <div className="px-4 py-6 border-t border-slate-100">
+              <button
+                onClick={() => { setMobileMenuOpen(false); onContactClick(); }}
+                className="w-full bg-brand-dark text-white py-3.5 rounded-lg font-display font-bold text-sm hover:bg-brand-cyan hover:text-brand-dark transition-colors cursor-pointer"
+              >
+                Contact
+              </button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
