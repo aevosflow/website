@@ -3,54 +3,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Menu, ChevronDown } from 'lucide-react';
 
 const MENU_ITEMS = [
-  {
-    title: 'Services',
-    target: 'solutions',
-    sections: [
-      {
-        title: 'AI Agents',
-        subs: ['Conversational Assistants', 'Process Orchestration', 'Policy-Driven Actions']
-      },
-      {
-        title: 'AI Automation',
-        subs: ['Workflow Integrations', 'Event-Based Triggers', 'Robotic Task Execution']
-      },
-      {
-        title: 'Data Intelligence',
-        subs: ['Pipeline Engineering', 'Predictive Analytics', 'Knowledge Graphs']
-      }
-    ]
-  },
-  {
-    title: 'Process',
-    target: 'process',
-    sections: [
-      {
-        title: 'Project Lifecycle',
-        subs: ['Discovery', 'Design', 'Deploy', 'Optimize', 'Scale']
-      }
-    ]
-  },
-  {
-    title: 'Case Studies',
-    target: 'case-studies',
-    sections: [
-      {
-        title: 'Featured Work',
-        subs: ['Retail Automation', 'Finance Productivity', 'Data Modernization']
-      }
-    ]
-  },
-  {
-    title: 'Insights',
-    target: 'insights',
-    sections: [
-      {
-        title: 'Thought Leadership',
-        subs: ['Articles', 'Reports', 'Industry Trends']
-      }
-    ]
-  }
+  { title: 'Services',     target: 'solutions',    sections: [{ title: 'AI Agents', subs: ['Conversational Assistants', 'Process Orchestration', 'Policy-Driven Actions'] }, { title: 'AI Automation', subs: ['Workflow Integrations', 'Event-Based Triggers', 'Robotic Task Execution'] }, { title: 'Data Intelligence', subs: ['Pipeline Engineering', 'Predictive Analytics', 'Knowledge Graphs'] }] },
+  { title: 'Process',      target: 'process',      sections: [{ title: 'Project Lifecycle', subs: ['Discovery', 'Design', 'Deploy', 'Optimize', 'Scale'] }] },
+  { title: 'Case Studies', target: 'case-studies', sections: [{ title: 'Featured Work', subs: ['Retail Automation', 'Finance Productivity', 'Data Modernization'] }] },
+  { title: 'Insights',     target: 'insights',     sections: [{ title: 'Thought Leadership', subs: ['Articles', 'Reports', 'Industry Trends'] }] },
+];
+
+const MOBILE_NAV = [
+  { title: 'Services',     target: 'solutions' },
+  { title: 'Process',      target: 'process' },
+  { title: 'Case Studies', target: 'case-studies' },
+  { title: 'Insights',     target: 'insights' },
 ];
 
 interface NavbarProps {
@@ -60,7 +23,6 @@ interface NavbarProps {
 export default function Navbar({ onContactClick }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -68,7 +30,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -81,15 +42,9 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       const offset = 80;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
-      const offsetPosition = elementRect - bodyRect - offset;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      window.scrollTo({ top: elementRect - bodyRect - offset, behavior: 'smooth' });
     }
     setMobileMenuOpen(false);
-    setOpenAccordion(null);
-  };
-
-  const toggleAccordion = (title: string) => {
-    setOpenAccordion(prev => prev === title ? null : title);
   };
 
   return (
@@ -125,17 +80,13 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                   </a>
                   <div className="absolute left-0 top-full z-20 opacity-0 invisible min-w-[340px] rounded-[32px] border border-slate-200/80 bg-white/95 p-5 shadow-2xl backdrop-blur-xl transition-all duration-200 group-hover:opacity-100 group-hover:visible">
                     <div className="space-y-4">
-                      {item.sections.map((section, sectionIndex) => (
-                        <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
+                      {item.sections.map((section, i) => (
+                        <div key={section.title} className={i > 0 ? 'pt-3 border-t border-slate-200/70' : ''}>
                           <p className="font-display text-sm font-semibold text-brand-dark mb-2">{section.title}</p>
                           <div className="space-y-2">
                             {section.subs.map((sub) => (
-                              <a
-                                key={sub}
-                                href={`#${item.target}`}
-                                onClick={(e) => handleNavClick(e, item.target)}
-                                className="block w-full text-left font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors"
-                              >
+                              <a key={sub} href={`#${item.target}`} onClick={(e) => handleNavClick(e, item.target)}
+                                className="block w-full text-left font-sans text-sm text-brand-gray hover:text-brand-dark transition-colors">
                                 {sub}
                               </a>
                             ))}
@@ -150,19 +101,13 @@ export default function Navbar({ onContactClick }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={onContactClick}
-              id="navbar-contact-btn"
-              className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow"
-            >
+            <button onClick={onContactClick} id="navbar-contact-btn"
+              className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow">
               Contact
             </button>
-
-            <button
-              onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setOpenAccordion(null); }}
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-brand-gray hover:text-brand-dark transition-colors cursor-pointer"
-              aria-label="Toggle menu"
-            >
+              aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
@@ -173,73 +118,30 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="fixed top-[57px] inset-x-0 bottom-0 z-40 bg-white overflow-y-auto md:hidden flex flex-col"
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+            className="fixed top-[57px] inset-x-0 z-40 bg-white border-b border-slate-100 shadow-xl md:hidden"
           >
-            <div className="flex-1 px-4 py-4 space-y-1">
-              {MENU_ITEMS.map((item) => (
-                <div key={item.title} className="border-b border-slate-100 last:border-0">
-                  {/* Accordion header */}
-                  <button
-                    onClick={() => toggleAccordion(item.title)}
-                    className="w-full flex items-center justify-between py-4 text-left cursor-pointer"
-                  >
-                    <span className="font-display font-semibold text-base text-brand-dark">{item.title}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-brand-gray transition-transform duration-200 ${
-                        openAccordion === item.title ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-
-                  {/* Accordion body */}
-                  <AnimatePresence initial={false}>
-                    {openAccordion === item.title && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pb-4 space-y-4">
-                          {item.sections.map((section, sectionIndex) => (
-                            <div key={section.title} className={sectionIndex > 0 ? 'pt-3 border-t border-slate-100' : ''}>
-                              <p className="font-display text-xs font-bold text-brand-gray uppercase tracking-wider mb-2 px-1">
-                                {section.title}
-                              </p>
-                              <div className="space-y-1">
-                                {section.subs.map((sub) => (
-                                  <a
-                                    key={sub}
-                                    href={`#${item.target}`}
-                                    onClick={(e) => handleNavClick(e, item.target)}
-                                    className="block px-3 py-2 rounded-lg font-sans text-sm text-brand-dark hover:bg-slate-50 transition-colors"
-                                  >
-                                    {sub}
-                                  </a>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+            <div className="px-5 pt-4 pb-2 space-y-1">
+              {MOBILE_NAV.map((item) => (
+                <a
+                  key={item.title}
+                  href={`#${item.target}`}
+                  onClick={(e) => handleNavClick(e, item.target)}
+                  className="flex items-center justify-between w-full py-3.5 px-1 border-b border-slate-100 last:border-0 font-display font-semibold text-base text-brand-dark hover:text-brand-cyan transition-colors cursor-pointer"
+                >
+                  {item.title}
+                </a>
               ))}
             </div>
-
-            {/* Bottom CTA */}
-            <div className="px-4 py-6 border-t border-slate-100">
+            <div className="px-5 py-5">
               <button
                 onClick={() => { setMobileMenuOpen(false); onContactClick(); }}
-                className="w-full bg-brand-dark text-white py-3.5 rounded-lg font-display font-bold text-sm hover:bg-brand-cyan hover:text-brand-dark transition-colors cursor-pointer"
+                className="w-full bg-brand-dark text-white py-3.5 rounded-xl font-display font-bold text-sm tracking-wide hover:bg-brand-cyan hover:text-brand-dark transition-colors cursor-pointer"
               >
-                Contact
+                Book a Meeting
               </button>
             </div>
           </motion.div>
