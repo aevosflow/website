@@ -48,8 +48,7 @@ function AnimatedLogo() {
     const logo = logoRef.current;
     const text = textRef.current;
     const flow = flowRef.current;
-    const glow = glowRef.current;
-    if (!logo || !text || !flow || !glow) { animating.current = false; return; }
+    if (!logo || !text || !flow) { animating.current = false; return; }
 
     // Logo: race in from left with overshoot
     logo.animate(
@@ -60,12 +59,6 @@ function AnimatedLogo() {
         { transform: 'translateX(0px)  scale(1)    rotate(0deg)',  opacity: '1' },
       ],
       { duration: 520, easing: 'ease-out', fill: 'forwards' }
-    );
-
-    // Glow: fade in
-    glow.animate(
-      [{ boxShadow: '0 0 0px 0px rgba(6,182,212,0)' }, { boxShadow: '0 0 22px 7px rgba(6,182,212,0.5)' }],
-      { duration: 300, delay: 100, easing: 'ease-out', fill: 'forwards' }
     );
 
     // Text: nudge right as logo pushes in, spring back
@@ -92,8 +85,7 @@ function AnimatedLogo() {
     const logo = logoRef.current;
     const text = textRef.current;
     const flow = flowRef.current;
-    const glow = glowRef.current;
-    if (!logo || !text || !flow || !glow) return;
+    if (!logo || !text || !flow) return;
 
     // Logo races back off to the left
     logo.animate(
@@ -102,11 +94,6 @@ function AnimatedLogo() {
         { transform: 'translateX(-56px) scale(0.5) rotate(-8deg)', opacity: '0' },
       ],
       { duration: 240, easing: 'cubic-bezier(0.4,0,1,1)', fill: 'forwards' }
-    );
-
-    glow.animate(
-      [{ boxShadow: '0 0 22px 7px rgba(6,182,212,0.5)' }, { boxShadow: '0 0 0px 0px rgba(6,182,212,0)' }],
-      { duration: 200, easing: 'ease-out', fill: 'forwards' }
     );
 
     // Text slides back
@@ -132,31 +119,21 @@ function AnimatedLogo() {
     >
       {/* Logo — absolutely positioned, starts off-screen left, opacity 0 */}
       <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}>
-        <div style={{ position: 'relative', width: 30, height: 30 }}>
+        <div style={{ position: 'relative', width: 42, height: 42 }}>
           <img
             ref={logoRef}
             src="/logo.png"
             alt=""
-            width={30}
-            height={30}
+            width={42}
+            height={42}
             draggable={false}
             style={{
-              width: 30,
-              height: 30,
+              width: 42,
+              height: 42,
               objectFit: 'contain',
               display: 'block',
-              /* Start: hidden off left — no flash on load */
-              transform: 'translateX(-56px) scale(0.5) rotate(-8deg)',
+              transform: 'translateX(-60px) scale(0.5) rotate(-8deg)',
               opacity: 0,
-            }}
-          />
-          <div
-            ref={glowRef}
-            style={{
-              position: 'absolute', inset: 0,
-              borderRadius: '50%',
-              pointerEvents: 'none',
-              boxShadow: '0 0 0px 0px rgba(6,182,212,0)',
             }}
           />
         </div>
