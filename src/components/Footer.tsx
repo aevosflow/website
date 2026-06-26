@@ -17,8 +17,7 @@ export default function Footer() {
         <div className="max-w-xs">
           <div className="flex items-center gap-1.5 mb-3">
             <img src="/logo.png" alt="AevosFlow" width={52} height={52} style={{ width: 52, height: 52, objectFit: 'contain' }} />
-            <span className="font-display font-extrabold text-2xl tracking-tight text-brand-dark">
-              Aevos<span style={{ color: '#06B6D4' }}>Flow</span>
+            <span className="font-display font-extrabold text-2xl tracking-tight text-brand-dark">Aevos<span style={{ color: '#06B6D4' }}>Flow</span>
             </span>
           </div>
           <p className="font-sans text-sm text-brand-gray leading-relaxed">
