@@ -32,7 +32,12 @@ const MOBILE_NAV = [
 ];
 
 /* ─── ANIMATED LOGO ─────────────────────────────────── */
-function AnimatedLogo() {
+export interface AnimatedLogoHandle {
+  triggerEnter: () => void;
+  triggerLeave: () => void;
+}
+
+const AnimatedLogo = React.forwardRef<AnimatedLogoHandle>((_, ref) => {
   // Use plain CSS + inline style for zero-flash control
   const logoRef   = useRef<HTMLImageElement>(null);
   const glowRef   = useRef<HTMLDivElement>(null);
@@ -109,6 +114,12 @@ function AnimatedLogo() {
     );
   };
 
+  // Expose enter/leave so the hamburger button can trigger the same animation
+  React.useImperativeHandle(ref, () => ({
+    triggerEnter: onEnter,
+    triggerLeave: onLeave,
+  }));
+
   return (
     <a
       href="#"
@@ -150,7 +161,8 @@ function AnimatedLogo() {
       </span>
     </a>
   );
-}
+});
+AnimatedLogo.displayName = 'AnimatedLogo';
 
 /* ─── NAVBAR ─────────────────────────────────────────── */
 interface NavbarProps { onContactClick: () => void; }
@@ -159,6 +171,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
   const [isScrolled, setIsScrolled]         = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen]     = useState(false);
+  const logoAnimRef = useRef<AnimatedLogoHandle>(null);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
@@ -191,12 +204,12 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             : 'py-5 bg-brand-lowest/30 backdrop-blur-xs border-b border-transparent'
         }`}
       >
-        {/* 3-column grid: logo | nav links (centered) | contact */}
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-3 items-center">
+        {/* 3-column grid: logo | nav links (centered) | contact — collapses to 2-col on mobile */}
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-[1fr_auto] md:grid-cols-3 items-center">
 
           {/* LEFT — Logo */}
           <div className="flex items-center">
-            <AnimatedLogo />
+            <AnimatedLogo ref={logoAnimRef} />
           </div>
 
           {/* CENTER — Nav links */}
@@ -284,8 +297,17 @@ export default function Navbar({ onContactClick }: NavbarProps) {
               className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow">
               Contact
             </button>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-brand-gray hover:text-brand-dark transition-colors cursor-pointer"
+            <button
+              onClick={() => {
+                const opening = !mobileMenuOpen;
+                setMobileMenuOpen(opening);
+                if (opening) {
+                  logoAnimRef.current?.triggerEnter();
+                } else {
+                  logoAnimRef.current?.triggerLeave();
+                }
+              }}
+              className="md:hidden ml-auto p-2 text-brand-gray hover:text-brand-dark transition-colors cursor-pointer"
               aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
