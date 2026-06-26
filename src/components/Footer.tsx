@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import { useState } from 'react';
 
 export default function Footer() {
-  const currentYear = 2024; // to match the original layout spec exactly!
+  const currentYear = new Date().getFullYear(); // to match the original layout spec exactly!
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
 
@@ -15,10 +15,12 @@ export default function Footer() {
     <footer className="bg-brand-low border-t border-outline-variant/40">
       <div className="max-w-7xl mx-auto px-6 py-20 flex flex-col md:flex-row justify-between items-start gap-12">
         <div className="max-w-xs">
-          <span className="font-display font-extrabold text-2xl tracking-tight text-brand-dark block mb-3 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 bg-brand-cyan rounded-full" />
-            AevosFlow
-          </span>
+          <div className="flex items-center gap-2.5 mb-3">
+            <img src="/logo.png" alt="AevosFlow" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain' }} />
+            <span className="font-display font-extrabold text-2xl tracking-tight text-brand-dark">
+              Aevos<span style={{ color: '#06B6D4' }}>Flow</span>
+            </span>
+          </div>
           <p className="font-sans text-sm text-brand-gray leading-relaxed">
             Engineering Editorial Excellence in Intelligent Systems. Deploying enterprise stability, zero-trust security parameters, and custom parameter modeling.
           </p>
