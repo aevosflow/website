@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useAnimation } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { X, Menu, ChevronDown, BrainCircuit, Zap, BarChart2, ArrowRight } from 'lucide-react';
 
 const SERVICES_DROPDOWN = [
@@ -18,126 +18,159 @@ const SERVICES_DROPDOWN = [
 ];
 
 const MENU_ITEMS = [
-  { title: 'Process', target: 'process' },
+  { title: 'Services',     target: 'solutions' },
+  { title: 'Process',      target: 'process' },
   { title: 'Case Studies', target: 'case-studies' },
-  { title: 'Insights', target: 'insights' },
+  { title: 'Insights',     target: 'insights' },
 ];
 
 const MOBILE_NAV = [
-  { title: 'Services', target: 'solutions' },
-  { title: 'Process', target: 'process' },
+  { title: 'Services',     target: 'solutions' },
+  { title: 'Process',      target: 'process' },
   { title: 'Case Studies', target: 'case-studies' },
-  { title: 'Insights', target: 'insights' },
+  { title: 'Insights',     target: 'insights' },
 ];
 
 /* ─── ANIMATED LOGO ─────────────────────────────────── */
 function AnimatedLogo() {
-  const [hovered, setHovered] = useState(false);
-  const [flowColor, setFlowColor] = useState('#0f2040');
-  const logoControls = useAnimation();
-  const textControls = useAnimation();
-  const busy = useRef(false);
+  // Use plain CSS + inline style for zero-flash control
+  const logoRef   = useRef<HTMLImageElement>(null);
+  const glowRef   = useRef<HTMLDivElement>(null);
+  const textRef   = useRef<HTMLSpanElement>(null);
+  const flowRef   = useRef<HTMLSpanElement>(null);
+  const animating = useRef(false);
 
-  // Init: logo fully hidden (clipped off to left, zero width impact)
-  useEffect(() => {
-    logoControls.set({ x: -60, opacity: 0, scale: 0.5, rotate: -8 });
-    textControls.set({ x: 0 });
-  }, []);
+  // Keyframe animation via Web Animations API — no React render needed, no flash
+  const onEnter = () => {
+    if (animating.current) return;
+    animating.current = true;
 
-  const onEnter = async () => {
-    if (busy.current) return;
-    busy.current = true;
-    setHovered(true);
-    setFlowColor('#06B6D4');
+    const logo = logoRef.current;
+    const text = textRef.current;
+    const flow = flowRef.current;
+    const glow = glowRef.current;
+    if (!logo || !text || !flow || !glow) { animating.current = false; return; }
 
-    // Logo rockets in with spring overshoot → nudges text right → both settle
-    logoControls.start({
-      x:       [-60,  4,  -2,  0],
-      opacity: [  0,  1,   1,  1],
-      scale:   [0.5, 1.18, 0.95, 1],
-      rotate:  [ -8,  5,  -2,  0],
-      transition: { duration: 0.5, times: [0, 0.42, 0.72, 1], ease: 'easeOut' },
-    });
+    // Logo: race in from left with overshoot
+    logo.animate(
+      [
+        { transform: 'translateX(-56px) scale(0.5) rotate(-8deg)', opacity: '0' },
+        { transform: 'translateX(5px)  scale(1.16) rotate(5deg)',  opacity: '1', offset: 0.42 },
+        { transform: 'translateX(-2px) scale(0.97) rotate(-1deg)', opacity: '1', offset: 0.72 },
+        { transform: 'translateX(0px)  scale(1)    rotate(0deg)',  opacity: '1' },
+      ],
+      { duration: 520, easing: 'ease-out', fill: 'forwards' }
+    );
 
-    await textControls.start({
-      x: [0, 10, 3, 0],
-      transition: { duration: 0.5, times: [0, 0.42, 0.72, 1], ease: 'easeOut' },
-    });
+    // Glow: fade in
+    glow.animate(
+      [{ boxShadow: '0 0 0px 0px rgba(6,182,212,0)' }, { boxShadow: '0 0 22px 7px rgba(6,182,212,0.5)' }],
+      { duration: 300, delay: 100, easing: 'ease-out', fill: 'forwards' }
+    );
 
-    busy.current = false;
+    // Text: nudge right as logo pushes in, spring back
+    text.animate(
+      [
+        { transform: 'translateX(0px)' },
+        { transform: 'translateX(38px)', offset: 0.42 },
+        { transform: 'translateX(34px)', offset: 0.72 },
+        { transform: 'translateX(34px)' },
+      ],
+      { duration: 520, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    // Flow color → cyan
+    flow.animate(
+      [{ color: '#0f2040' }, { color: '#06B6D4' }],
+      { duration: 250, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    setTimeout(() => { animating.current = false; }, 520);
   };
 
-  const onLeave = async () => {
-    setHovered(false);
-    setFlowColor('#0f2040');
+  const onLeave = () => {
+    const logo = logoRef.current;
+    const text = textRef.current;
+    const flow = flowRef.current;
+    const glow = glowRef.current;
+    if (!logo || !text || !flow || !glow) return;
 
-    // Logo dashes back off left quickly
-    logoControls.start({
-      x: -60, opacity: 0, scale: 0.5, rotate: -8,
-      transition: { duration: 0.25, ease: [0.4, 0, 1, 1] },
-    });
-    textControls.start({
-      x: 0,
-      transition: { duration: 0.2, ease: 'easeOut' },
-    });
+    // Logo races back off to the left
+    logo.animate(
+      [
+        { transform: 'translateX(0px) scale(1) rotate(0deg)', opacity: '1' },
+        { transform: 'translateX(-56px) scale(0.5) rotate(-8deg)', opacity: '0' },
+      ],
+      { duration: 240, easing: 'cubic-bezier(0.4,0,1,1)', fill: 'forwards' }
+    );
+
+    glow.animate(
+      [{ boxShadow: '0 0 22px 7px rgba(6,182,212,0.5)' }, { boxShadow: '0 0 0px 0px rgba(6,182,212,0)' }],
+      { duration: 200, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    // Text slides back
+    text.animate(
+      [{ transform: 'translateX(34px)' }, { transform: 'translateX(0px)' }],
+      { duration: 220, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    // Flow color → dark
+    flow.animate(
+      [{ color: '#06B6D4' }, { color: '#0f2040' }],
+      { duration: 200, easing: 'ease-out', fill: 'forwards' }
+    );
   };
 
   return (
     <a
       href="#"
-      className="flex items-center select-none focus:outline-none"
-      style={{ gap: 0 }}
+      className="flex items-center select-none focus:outline-none flex-shrink-0"
+      style={{ position: 'relative', height: 36 }}
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      {/*
-        Logo wrapper: width 0 so it takes no space when hidden.
-        overflow-visible so the spring overshoot renders outside the box.
-        The logo itself is absolutely positioned relative to this wrapper.
-      */}
-      <div className="relative overflow-visible" style={{ width: 0, height: 36 }}>
-        <motion.div
-          animate={logoControls}
-          className="absolute top-0 left-0"
-          style={{ originX: 0.5, originY: 0.5 }}
-        >
-          <div className="relative" style={{ width: 30, height: 30, marginTop: 3 }}>
-            <img
-              src="/logo.png"
-              alt="AevosFlow logo"
-              width={30}
-              height={30}
-              className="w-[30px] h-[30px] object-contain block"
-              draggable={false}
-            />
-            {/* Glow ring */}
-            <motion.div
-              className="absolute inset-0 rounded-full pointer-events-none"
-              animate={{
-                boxShadow: hovered
-                  ? '0 0 22px 7px rgba(6,182,212,0.55)'
-                  : '0 0 0px 0px rgba(6,182,212,0)',
-              }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-        </motion.div>
+      {/* Logo — absolutely positioned, starts off-screen left, opacity 0 */}
+      <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}>
+        <div style={{ position: 'relative', width: 30, height: 30 }}>
+          <img
+            ref={logoRef}
+            src="/logo.png"
+            alt=""
+            width={30}
+            height={30}
+            draggable={false}
+            style={{
+              width: 30,
+              height: 30,
+              objectFit: 'contain',
+              display: 'block',
+              /* Start: hidden off left — no flash on load */
+              transform: 'translateX(-56px) scale(0.5) rotate(-8deg)',
+              opacity: 0,
+            }}
+          />
+          <div
+            ref={glowRef}
+            style={{
+              position: 'absolute', inset: 0,
+              borderRadius: '50%',
+              pointerEvents: 'none',
+              boxShadow: '0 0 0px 0px rgba(6,182,212,0)',
+            }}
+          />
+        </div>
       </div>
 
-      {/* Wordmark — shifts right as logo "pushes" it */}
-      <motion.span
-        animate={textControls}
+      {/* Wordmark — starts at x=0, animates right on hover */}
+      <span
+        ref={textRef}
         className="font-display font-extrabold text-2xl tracking-tight"
-        style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+        style={{ display: 'inline-block', whiteSpace: 'nowrap', transform: 'translateX(0px)' }}
       >
         <span style={{ color: '#0f2040' }}>Aevos</span>
-        <motion.span
-          animate={{ color: flowColor }}
-          transition={{ duration: 0.22 }}
-        >
-          Flow
-        </motion.span>
-      </motion.span>
+        <span ref={flowRef} style={{ color: '#0f2040' }}>Flow</span>
+      </span>
     </a>
   );
 }
@@ -146,9 +179,9 @@ function AnimatedLogo() {
 interface NavbarProps { onContactClick: () => void; }
 
 export default function Navbar({ onContactClick }: NavbarProps) {
-  const [isScrolled, setIsScrolled]     = useState(false);
+  const [isScrolled, setIsScrolled]         = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [servicesOpen, setServicesOpen]     = useState(false);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 50);
@@ -164,10 +197,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
   const handleNavClick = (e: React.MouseEvent<HTMLElement>, targetId: string) => {
     e.preventDefault();
     const el = document.getElementById(targetId);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top, behavior: 'smooth' });
-    }
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
     setMobileMenuOpen(false);
     setServicesOpen(false);
   };
@@ -184,90 +214,95 @@ export default function Navbar({ onContactClick }: NavbarProps) {
             : 'py-5 bg-brand-lowest/30 backdrop-blur-xs border-b border-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center gap-10">
+        {/* 3-column grid: logo | nav links (centered) | contact */}
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-3 items-center">
 
+          {/* LEFT — Logo */}
+          <div className="flex items-center">
             <AnimatedLogo />
-
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-8">
-              {/* Services mega-dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setServicesOpen(true)}
-                onMouseLeave={() => setServicesOpen(false)}
-              >
-                <button
-                  onClick={(e) => handleNavClick(e as any, 'solutions')}
-                  className="inline-flex items-center gap-1.5 font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200 cursor-pointer"
-                >
-                  Services
-                  <ChevronDown className={`w-3.5 h-3.5 text-brand-gray transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                <AnimatePresence>
-                  {servicesOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                      transition={{ duration: 0.16 }}
-                      className="absolute left-0 top-full pt-3 z-20 w-[720px]"
-                    >
-                      <div className="rounded-2xl border border-slate-200/80 bg-white/98 shadow-2xl backdrop-blur-xl overflow-hidden">
-                        <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/80">
-                          <p className="text-xs font-bold font-display text-brand-gray uppercase tracking-widest">Our Services</p>
-                        </div>
-                        <div className="grid grid-cols-3 divide-x divide-slate-100">
-                          {SERVICES_DROPDOWN.map((cat) => {
-                            const CatIcon = cat.icon;
-                            return (
-                              <div key={cat.id} className="p-4">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <div className="p-1.5 rounded-lg" style={{ background: `${cat.accent}18` }}>
-                                    <CatIcon className="w-3.5 h-3.5" style={{ color: cat.accent }} />
-                                  </div>
-                                  <button onClick={(e) => handleNavClick(e as any, 'solutions')}
-                                    className="font-display text-xs font-bold text-brand-dark hover:text-brand-cyan transition-colors cursor-pointer">
-                                    {cat.title}
-                                  </button>
-                                </div>
-                                <div className="space-y-1">
-                                  {cat.subs.map((sub) => (
-                                    <button key={sub} onClick={(e) => handleNavClick(e as any, 'solutions')}
-                                      className="block w-full text-left px-2 py-1 rounded-lg font-sans text-xs text-brand-gray hover:text-brand-dark hover:bg-slate-50 transition-all cursor-pointer">
-                                      {sub}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                          <p className="font-sans text-xs text-brand-gray">27 services across 3 practice areas</p>
-                          <button onClick={(e) => handleNavClick(e as any, 'solutions')}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold font-display text-brand-cyan hover:text-brand-dark transition-colors cursor-pointer">
-                            View all services <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {MENU_ITEMS.map((item) => (
-                <a key={item.title} href={`#${item.target}`}
-                  onClick={(e) => handleNavClick(e, item.target)}
-                  className="font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200">
-                  {item.title}
-                </a>
-              ))}
-            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* CENTER — Nav links */}
+          <div className="hidden md:flex items-center justify-center gap-8">
+
+            {/* Services with mega-dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <button
+                onClick={(e) => handleNavClick(e as any, 'solutions')}
+                className="inline-flex items-center gap-1.5 font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200 cursor-pointer"
+              >
+                Services
+                <ChevronDown className={`w-3.5 h-3.5 text-brand-gray transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {servicesOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.16 }}
+                    className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-20 w-[720px]"
+                  >
+                    <div className="rounded-2xl border border-slate-200/80 bg-white/98 shadow-2xl backdrop-blur-xl overflow-hidden">
+                      <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/80">
+                        <p className="text-xs font-bold font-display text-brand-gray uppercase tracking-widest">Our Services</p>
+                      </div>
+                      <div className="grid grid-cols-3 divide-x divide-slate-100">
+                        {SERVICES_DROPDOWN.map((cat) => {
+                          const CatIcon = cat.icon;
+                          return (
+                            <div key={cat.id} className="p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="p-1.5 rounded-lg" style={{ background: `${cat.accent}18` }}>
+                                  <CatIcon className="w-3.5 h-3.5" style={{ color: cat.accent }} />
+                                </div>
+                                <button onClick={(e) => handleNavClick(e as any, 'solutions')}
+                                  className="font-display text-xs font-bold text-brand-dark hover:text-brand-cyan transition-colors cursor-pointer">
+                                  {cat.title}
+                                </button>
+                              </div>
+                              <div className="space-y-1">
+                                {cat.subs.map((sub) => (
+                                  <button key={sub} onClick={(e) => handleNavClick(e as any, 'solutions')}
+                                    className="block w-full text-left px-2 py-1 rounded-lg font-sans text-xs text-brand-gray hover:text-brand-dark hover:bg-slate-50 transition-all cursor-pointer">
+                                    {sub}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                        <p className="font-sans text-xs text-brand-gray">27 services across 3 practice areas</p>
+                        <button onClick={(e) => handleNavClick(e as any, 'solutions')}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold font-display text-brand-cyan hover:text-brand-dark transition-colors cursor-pointer">
+                          View all services <ArrowRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Other links */}
+            {MENU_ITEMS.slice(1).map((item) => (
+              <a key={item.title} href={`#${item.target}`}
+                onClick={(e) => handleNavClick(e, item.target)}
+                className="font-display text-sm font-medium text-brand-dark hover:text-brand-cyan transition-colors duration-200">
+                {item.title}
+              </a>
+            ))}
+          </div>
+
+          {/* RIGHT — Contact + hamburger */}
+          <div className="flex items-center justify-end gap-4">
             <button onClick={onContactClick} id="navbar-contact-btn"
               className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow">
               Contact
