@@ -148,7 +148,7 @@ function AnimatedLogo() {
         style={{ width: 32, height: 32 }}
       >
         <img
-          src="/logo.png"
+          src="/static/logo.png"
           alt="AevosFlow"
           width={32}
           height={32}
