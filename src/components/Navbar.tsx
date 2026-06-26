@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'motion/react';
+import { motion, AnimatePresence, useAnimation } from 'motion/react';
 import { X, Menu, ChevronDown, BrainCircuit, Zap, BarChart2, ArrowRight } from 'lucide-react';
 
-/* ─── SERVICES DATA ─────────────────────────────────── */
 const SERVICES_DROPDOWN = [
   {
     id: 'ml',
@@ -60,121 +59,107 @@ function AnimatedLogo() {
   const [hovered, setHovered] = useState(false);
   const logoControls = useAnimation();
   const textControls = useAnimation();
-  const hasAnimated = useRef(false);
+  const isAnimating = useRef(false);
 
-  // Entry animation on mount — logo slides in from left, then text fades in
-  useEffect(() => {
-    const runEntry = async () => {
-      // Start: logo off to the left, text invisible
-      await logoControls.set({ x: -48, opacity: 0, scale: 0.7 });
-      await textControls.set({ opacity: 0, x: -6 });
-
-      // Small delay then race in
-      await new Promise(r => setTimeout(r, 300));
-
-      // Logo rockets in with overshoot
-      logoControls.start({
-        x: 0,
-        opacity: 1,
-        scale: 1,
-        transition: {
-          type: 'spring',
-          stiffness: 520,
-          damping: 22,
-          mass: 0.6,
-        },
-      });
-
-      // Text rises in slightly after
-      await new Promise(r => setTimeout(r, 80));
-      textControls.start({
-        opacity: 1,
-        x: 0,
-        transition: {
-          duration: 0.4,
-          ease: [0.22, 1, 0.36, 1],
-        },
-      });
-    };
-
-    if (!hasAnimated.current) {
-      hasAnimated.current = true;
-      runEntry();
-    }
-  }, []);
-
-  // Hover: logo races right (overshoot), text shifts right, logo snaps back left
   const handleHoverStart = async () => {
+    if (isAnimating.current) return;
+    isAnimating.current = true;
     setHovered(true);
 
-    // Logo: dash right with spring overshoot, then snap back
-    logoControls.start({
-      x: [0, 18, -4, 0],
-      rotate: [0, 8, -3, 0],
-      scale: [1, 1.12, 0.97, 1],
-      transition: {
-        duration: 0.55,
-        times: [0, 0.35, 0.75, 1],
-        ease: 'easeInOut',
-      },
-    });
+    // Phase 1: logo bursts in from the far left (off-screen feel), text nudges right
+    await Promise.all([
+      logoControls.start({
+        x: [-52, 6, -2, 0],
+        opacity: [0, 1, 1, 1],
+        scale: [0.6, 1.15, 0.96, 1],
+        rotate: [0, 6, -2, 0],
+        transition: {
+          duration: 0.52,
+          times: [0, 0.45, 0.75, 1],
+          ease: 'easeOut',
+        },
+      }),
+      textControls.start({
+        x: [0, 9, 3, 0],
+        transition: {
+          duration: 0.52,
+          times: [0, 0.45, 0.75, 1],
+          ease: 'easeOut',
+        },
+      }),
+    ]);
 
-    // Text: shift right as logo "pushes" it, then ease back
-    textControls.start({
-      x: [0, 7, 2, 0],
-      transition: {
-        duration: 0.55,
-        times: [0, 0.35, 0.75, 1],
-        ease: 'easeInOut',
-      },
-    });
+    isAnimating.current = false;
   };
 
-  const handleHoverEnd = () => {
+  const handleHoverEnd = async () => {
     setHovered(false);
+
+    // Logo races back off to the left and fades out
+    logoControls.start({
+      x: [0, -52],
+      opacity: [1, 0],
+      scale: [1, 0.7],
+      transition: {
+        duration: 0.28,
+        ease: [0.4, 0, 1, 1],
+      },
+    });
+
+    // Text snaps back
+    textControls.start({
+      x: 0,
+      transition: { duration: 0.2, ease: 'easeOut' },
+    });
   };
+
+  // Ensure logo starts hidden
+  useEffect(() => {
+    logoControls.set({ x: -52, opacity: 0, scale: 0.6 });
+  }, []);
 
   return (
     <a
       href="#"
-      className="flex items-center gap-2.5 select-none focus:outline-none"
+      className="flex items-center gap-0 select-none focus:outline-none group"
       onMouseEnter={handleHoverStart}
       onMouseLeave={handleHoverEnd}
     >
-      {/* Logo image */}
+      {/* Logo — hidden off-left until hover */}
       <motion.div
         animate={logoControls}
-        className="relative flex-shrink-0"
-        style={{ width: 32, height: 32 }}
+        className="flex-shrink-0 overflow-visible"
+        style={{ width: 0, marginRight: 0 }}
       >
-        <img
-          src="/static/logo.png"
-          alt="AevosFlow"
-          width={32}
-          height={32}
-          className="w-8 h-8 object-contain"
-          draggable={false}
-        />
-        {/* Cyan glow on hover */}
-        <motion.div
-          className="absolute inset-0 rounded-full pointer-events-none"
-          animate={{
-            boxShadow: hovered
-              ? '0 0 18px 4px rgba(6,182,212,0.45)'
-              : '0 0 0px 0px rgba(6,182,212,0)',
-          }}
-          transition={{ duration: 0.3 }}
-        />
+        <div className="relative" style={{ width: 30, height: 30, marginRight: 8 }}>
+          <img
+            src="/static/logo.png"
+            alt=""
+            width={30}
+            height={30}
+            className="w-[30px] h-[30px] object-contain"
+            draggable={false}
+          />
+          {/* Cyan glow */}
+          <motion.div
+            className="absolute inset-0 rounded-full pointer-events-none"
+            animate={{
+              boxShadow: hovered
+                ? '0 0 20px 6px rgba(6,182,212,0.5)'
+                : '0 0 0px 0px rgba(6,182,212,0)',
+            }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
       </motion.div>
 
       {/* Wordmark */}
       <motion.span
         animate={textControls}
-        className="font-display font-extrabold text-2xl tracking-tight text-brand-dark"
-        style={{ display: 'inline-block' }}
+        className="font-display font-extrabold text-2xl tracking-tight"
+        style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
       >
-        {/* A stays still, rest of letters slide in slightly on hover */}
-        <span>Aevos</span>
+        <span className="text-brand-dark">Aevos</span>
         <motion.span
           animate={{ color: hovered ? '#06B6D4' : '#0f2040' }}
           transition={{ duration: 0.25 }}
@@ -235,7 +220,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-10">
 
-            {/* ── Animated Logo ── */}
             <AnimatedLogo />
 
             {/* Desktop nav */}
@@ -243,7 +227,7 @@ export default function Navbar({ onContactClick }: NavbarProps) {
 
               {/* Services mega-dropdown */}
               <div
-                className="relative group"
+                className="relative"
                 onMouseEnter={() => setServicesOpen(true)}
                 onMouseLeave={() => setServicesOpen(false)}
               >
@@ -268,7 +252,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                         <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/80">
                           <p className="text-xs font-bold font-display text-brand-gray uppercase tracking-widest">Our Services</p>
                         </div>
-
                         <div className="grid grid-cols-3 divide-x divide-slate-100">
                           {SERVICES_DROPDOWN.map((cat) => {
                             const CatIcon = cat.icon;
@@ -300,7 +283,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                             );
                           })}
                         </div>
-
                         <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
                           <p className="font-sans text-xs text-brand-gray">27 services across 3 practice areas</p>
                           <button
@@ -316,7 +298,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                 </AnimatePresence>
               </div>
 
-              {/* Other nav items */}
               {MENU_ITEMS.map((item) => (
                 <a
                   key={item.title}
