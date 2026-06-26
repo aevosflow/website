@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'motion/react';
 import { X, Menu, ChevronDown, BrainCircuit, Zap, BarChart2, ArrowRight } from 'lucide-react';
 
+/* ─── SERVICES DATA ─────────────────────────────────── */
 const SERVICES_DROPDOWN = [
   {
     id: 'ml',
@@ -54,6 +55,138 @@ const MOBILE_NAV = [
   { title: 'Insights',     target: 'insights' },
 ];
 
+/* ─── ANIMATED LOGO ─────────────────────────────────── */
+function AnimatedLogo() {
+  const [hovered, setHovered] = useState(false);
+  const logoControls = useAnimation();
+  const textControls = useAnimation();
+  const hasAnimated = useRef(false);
+
+  // Entry animation on mount — logo slides in from left, then text fades in
+  useEffect(() => {
+    const runEntry = async () => {
+      // Start: logo off to the left, text invisible
+      await logoControls.set({ x: -48, opacity: 0, scale: 0.7 });
+      await textControls.set({ opacity: 0, x: -6 });
+
+      // Small delay then race in
+      await new Promise(r => setTimeout(r, 300));
+
+      // Logo rockets in with overshoot
+      logoControls.start({
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        transition: {
+          type: 'spring',
+          stiffness: 520,
+          damping: 22,
+          mass: 0.6,
+        },
+      });
+
+      // Text rises in slightly after
+      await new Promise(r => setTimeout(r, 80));
+      textControls.start({
+        opacity: 1,
+        x: 0,
+        transition: {
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1],
+        },
+      });
+    };
+
+    if (!hasAnimated.current) {
+      hasAnimated.current = true;
+      runEntry();
+    }
+  }, []);
+
+  // Hover: logo races right (overshoot), text shifts right, logo snaps back left
+  const handleHoverStart = async () => {
+    setHovered(true);
+
+    // Logo: dash right with spring overshoot, then snap back
+    logoControls.start({
+      x: [0, 18, -4, 0],
+      rotate: [0, 8, -3, 0],
+      scale: [1, 1.12, 0.97, 1],
+      transition: {
+        duration: 0.55,
+        times: [0, 0.35, 0.75, 1],
+        ease: 'easeInOut',
+      },
+    });
+
+    // Text: shift right as logo "pushes" it, then ease back
+    textControls.start({
+      x: [0, 7, 2, 0],
+      transition: {
+        duration: 0.55,
+        times: [0, 0.35, 0.75, 1],
+        ease: 'easeInOut',
+      },
+    });
+  };
+
+  const handleHoverEnd = () => {
+    setHovered(false);
+  };
+
+  return (
+    <a
+      href="#"
+      className="flex items-center gap-2.5 select-none focus:outline-none"
+      onMouseEnter={handleHoverStart}
+      onMouseLeave={handleHoverEnd}
+    >
+      {/* Logo image */}
+      <motion.div
+        animate={logoControls}
+        className="relative flex-shrink-0"
+        style={{ width: 32, height: 32 }}
+      >
+        <img
+          src="/logo.png"
+          alt="AevosFlow"
+          width={32}
+          height={32}
+          className="w-8 h-8 object-contain"
+          draggable={false}
+        />
+        {/* Cyan glow on hover */}
+        <motion.div
+          className="absolute inset-0 rounded-full pointer-events-none"
+          animate={{
+            boxShadow: hovered
+              ? '0 0 18px 4px rgba(6,182,212,0.45)'
+              : '0 0 0px 0px rgba(6,182,212,0)',
+          }}
+          transition={{ duration: 0.3 }}
+        />
+      </motion.div>
+
+      {/* Wordmark */}
+      <motion.span
+        animate={textControls}
+        className="font-display font-extrabold text-2xl tracking-tight text-brand-dark"
+        style={{ display: 'inline-block' }}
+      >
+        {/* A stays still, rest of letters slide in slightly on hover */}
+        <span>Aevos</span>
+        <motion.span
+          animate={{ color: hovered ? '#06B6D4' : '#0f2040' }}
+          transition={{ duration: 0.25 }}
+        >
+          Flow
+        </motion.span>
+      </motion.span>
+    </a>
+  );
+}
+
+/* ─── NAVBAR ─────────────────────────────────────────── */
 interface NavbarProps {
   onContactClick: () => void;
 }
@@ -101,10 +234,9 @@ export default function Navbar({ onContactClick }: NavbarProps) {
       >
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
           <div className="flex items-center gap-10">
-            <a href="#" className="font-display font-extrabold text-2xl tracking-tight text-brand-dark flex items-center gap-2">
-              <span className="w-3 h-3 bg-brand-cyan rounded-full animate-pulse" />
-              AevosFlow
-            </a>
+
+            {/* ── Animated Logo ── */}
+            <AnimatedLogo />
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
@@ -133,7 +265,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                       className="absolute left-0 top-full pt-3 z-20 w-[720px]"
                     >
                       <div className="rounded-2xl border border-slate-200/80 bg-white/98 shadow-2xl backdrop-blur-xl overflow-hidden">
-                        {/* Header bar */}
                         <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/80">
                           <p className="text-xs font-bold font-display text-brand-gray uppercase tracking-widest">Our Services</p>
                         </div>
@@ -143,7 +274,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                             const CatIcon = cat.icon;
                             return (
                               <div key={cat.id} className="p-4">
-                                {/* Category header */}
                                 <div className="flex items-center gap-2 mb-3">
                                   <div className="p-1.5 rounded-lg" style={{ background: `${cat.accent}18` }}>
                                     <CatIcon className="w-3.5 h-3.5" style={{ color: cat.accent }} />
@@ -155,8 +285,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                                     {cat.title}
                                   </button>
                                 </div>
-
-                                {/* Service links */}
                                 <div className="space-y-1">
                                   {cat.subs.map((sub) => (
                                     <button
@@ -173,7 +301,6 @@ export default function Navbar({ onContactClick }: NavbarProps) {
                           })}
                         </div>
 
-                        {/* Footer CTA */}
                         <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between">
                           <p className="font-sans text-xs text-brand-gray">27 services across 3 practice areas</p>
                           <button
@@ -204,13 +331,18 @@ export default function Navbar({ onContactClick }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            <button onClick={onContactClick} id="navbar-contact-btn"
-              className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow">
+            <button
+              onClick={onContactClick}
+              id="navbar-contact-btn"
+              className="hidden sm:inline-flex bg-brand-dark text-white hover:bg-brand-cyan hover:text-brand-dark px-5 py-2 rounded-md font-display text-sm font-semibold transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shadow-sm hover:shadow"
+            >
               Contact
             </button>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-brand-gray hover:text-brand-dark transition-colors cursor-pointer"
-              aria-label="Toggle menu">
+              aria-label="Toggle menu"
+            >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
