@@ -15,8 +15,8 @@ export default function Footer() {
     <footer className="bg-brand-low border-t border-outline-variant/40">
       <div className="max-w-7xl mx-auto px-6 py-20 flex flex-col md:flex-row justify-between items-start gap-12">
         <div className="max-w-xs">
-          <div className="flex items-center gap-2.5 mb-3">
-            <img src="/logo.png" alt="AevosFlow" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain' }} />
+          <div className="flex items-center gap-1.5 mb-3">
+            <img src="/logo.png" alt="AevosFlow" width={52} height={52} style={{ width: 52, height: 52, objectFit: 'contain' }} />
             <span className="font-display font-extrabold text-2xl tracking-tight text-brand-dark">
               Aevos<span style={{ color: '#06B6D4' }}>Flow</span>
             </span>
