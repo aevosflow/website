@@ -303,9 +303,9 @@ export default function CTA({ showBookingModal, onCloseBookingModal, onOpenBooki
                       </div>
 
                       <div>
-                        <label className="block font-display text-xs font-semibold text-brand-dark uppercase tracking-wider mb-1.5">Primary Friction Bottleneck (Optional)</label>
+                        <label className="block font-display text-xs font-semibold text-brand-dark uppercase tracking-wider mb-1.5">Topic/Service Type (Optional)</label>
                         <textarea
-                          placeholder="Manual risk checking, old legacy APIs..."
+                          placeholder="AI Agents, AI Automations, AI Data Science, RAG bots, Voice agents, etc"
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           className="w-full bg-brand-lowest border border-outline-variant/60 rounded-md p-3 font-sans text-sm text-brand-dark focus:border-brand-dark focus:ring-0 resize-none h-20"
